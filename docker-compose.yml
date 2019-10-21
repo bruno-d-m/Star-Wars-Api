@@ -1,0 +1,40 @@
+version: '3.0'
+services:
+  app:
+    container_name: star-wars-api
+    restart: always
+    build: .
+    volumes:
+      - .:/app/star-wars-api
+      - ~/.m2:/root/.m2
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/starwars
+    ports:
+      - 8080:8080
+    depends_on:
+      - mongodb
+    networks: 
+      - backend
+    command: mvn spring-boot:run
+
+  mongodb:
+    container_name: star-wars-api-db
+    restart: always
+    image: mongo:latest
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      - MONGO_DATA_DIR=/data/db
+    ports:
+      - 27017:27017
+    networks: 
+      - backend
+    command: mongod --logpath=/dev/null # --quiet
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
